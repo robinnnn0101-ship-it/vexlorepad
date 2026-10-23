@@ -45,3 +45,5 @@ After deploy, anyone with a Solana wallet (Phantom / Solflare) can open the site
 - `.env.local` is gitignored. Never commit RPC keys.
 - Test on mainnet with a small amount first.
 - For higher reliability, use a paid RPC (Helius free tier is fine to start).
+
+<!-- fresh deploy -->
