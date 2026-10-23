@@ -10,17 +10,7 @@ import { isHoverableDevice, useBreakpoint } from '@/lib/device';
 import { PausedIndicator } from './PausedIndicator';
 import { usePumpStream } from '@/contexts/PumpStreamProvider';
 import { Input } from '@/components/ui/input';
-import { Search, Filter, Check } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuCheckboxItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/DropdownMenu';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Search } from 'lucide-react';
 
 type ExploreColumnProps = {
   tab: ExploreTab;
@@ -33,11 +23,20 @@ export const ExploreTabTitleMap: Record<ExploreTab, string> = {
   [ExploreTab.GRADUATED]: `Bonded`,
 };
 
-const ALL_SOURCES = [
-  { id: Launchpad.PUMPFUN, label: 'Pump.fun' },
-  // { id: Launchpad.LETSBONKFUN, label: 'Bonk.fun' },
-  // { id: 'met-dbc', label: 'Meteora' },
-];
+// Approximate SOL price in USD. Update periodically or fetch dynamically later.
+const SOL_PRICE_USD = 160;
+
+function toHttpUri(uri: string | undefined | null): string | null {
+  if (!uri) return null;
+  if (uri.startsWith('ipfs://')) {
+    const cid = uri.replace('ipfs://', '').replace(/^ipfs\//, '');
+    return `https://ipfs.io/ipfs/${cid}`;
+  }
+  if (uri.startsWith('ar://')) {
+    return `https://arweave.net/${uri.replace('ar://', '')}`;
+  }
+  return uri;
+}
 
 export const ExploreColumn: React.FC<ExploreColumnProps> = ({ tab, onSelectToken }) => {
   const { pausedTabs, setTabPaused, request } = useExplore();
@@ -48,34 +47,16 @@ export const ExploreColumn: React.FC<ExploreColumnProps> = ({ tab, onSelectToken
   );
 
   const [searchTerm, setSearchTerm] = useState('');
-  // Default exclude non-pump sources if we want to hide them, 
-  // but actually we will just NOT merge the currentData (Meteora) in the container below.
-  const [excludedSources, setExcludedSources] = useState<string[]>([]);
-
-  const toggleSource = (sourceId: string) => {
-    setExcludedSources((prev) => 
-      prev.includes(sourceId) 
-        ? prev.filter(id => id !== sourceId) 
-        : [...prev, sourceId]
-    );
-  };
 
   return (
     <div className="flex flex-col h-full lg:h-[calc(100vh-300px)]">
-      {/* Desktop Column Header */}
       <div className="flex flex-col p-3 max-lg:hidden gap-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-x-2">
             <h2 className="font-bold text-neutral-300">{ExploreTabTitleMap[tab]}</h2>
             {isPaused && <PausedIndicator />}
           </div>
-          
-          {/* Filter Dropdown */}
-          {/* Hidden for now as we only show Pump.fun */}
-          {/* <DropdownMenu> ... </DropdownMenu> */}
         </div>
-        
-        {/* Search Input */}
         <div className="relative">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
@@ -87,7 +68,6 @@ export const ExploreColumn: React.FC<ExploreColumnProps> = ({ tab, onSelectToken
         </div>
       </div>
 
-      {/* List */}
       <div className="relative flex-1 border-neutral-850 text-xs lg:border-t h-full">
         <div className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-2 bg-gradient-to-b from-neutral-950 to-transparent" />
         <TokenCardListContainer
@@ -96,7 +76,6 @@ export const ExploreColumn: React.FC<ExploreColumnProps> = ({ tab, onSelectToken
           isPaused={isPaused}
           setIsPaused={setIsPaused}
           searchTerm={searchTerm}
-          excludedSources={excludedSources}
           onSelectToken={onSelectToken}
         />
       </div>
@@ -110,24 +89,17 @@ type TokenCardListContainerProps = {
   isPaused: boolean;
   setIsPaused: (isPaused: boolean) => void;
   searchTerm: string;
-  excludedSources: string[];
   onSelectToken?: (mint: string) => void;
 };
 
 const timeframe = EXPLORE_FIXED_TIMEFRAME;
 
 const TokenCardListContainer: React.FC<TokenCardListContainerProps> = memo(
-  ({ tab, request, isPaused, setIsPaused, searchTerm, excludedSources, onSelectToken }) => {
-    const queryClient = useQueryClient();
+  ({ tab, request, isPaused, setIsPaused, searchTerm, onSelectToken }) => {
     const breakpoint = useBreakpoint();
     const isMobile = breakpoint === 'md' || breakpoint === 'sm' || breakpoint === 'xs';
-
     const listRef = useRef<HTMLDivElement>(null);
 
-    // Original Meteora Data - DISABLED for now as per user request
-    // const { data: currentData, status } = useExploreGemsTokenList((data) => data[tab]);
-
-    // Pump.fun Data Integration
     const { subscribeNewTokens, lastCreateEvent, lastTradeEvent, isConnected, subscribeTokenTrades } = usePumpStream();
     const [pumpPools, setPumpPools] = useState<Pool[]>([]);
 
@@ -138,32 +110,26 @@ const TokenCardListContainer: React.FC<TokenCardListContainerProps> = memo(
     }, [isConnected, subscribeNewTokens]);
 
     const resolveMetadataImage = useCallback(async (uri: string | undefined) => {
-      if (!uri) return { image: null, socials: null };
+      const httpUri = toHttpUri(uri);
+      if (!httpUri) return { image: null, socials: null };
       try {
-        const response = await fetch(uri);
-        if (!response.ok) {
-          return { image: null, socials: null };
-        }
+        const response = await fetch(httpUri);
+        if (!response.ok) return { image: null, socials: null };
         const data = await response.json();
-        const image = data?.image || data?.logo || data?.imageUrl || null;
-        
-        // Extract social links from metadata
+        let image = data?.image || data?.logo || data?.imageUrl || null;
+        if (image) image = toHttpUri(image) || image;
+
         const socials = {
           website: data?.website || data?.extensions?.website || null,
           twitter: data?.twitter || data?.extensions?.twitter || data?.twitter_url || null,
           telegram: data?.telegram || data?.extensions?.telegram || data?.telegram_url || null,
         };
-        
         return { image, socials };
-      } catch (error) {
-        if (process.env.NODE_ENV === 'development') {
-          console.warn('Failed to resolve metadata', error);
-        }
+      } catch {
         return { image: null, socials: null };
       }
     }, []);
 
-    // Handle New Token Creation
     useEffect(() => {
       if (lastCreateEvent) {
         const newPool: Pool = {
@@ -180,11 +146,11 @@ const TokenCardListContainer: React.FC<TokenCardListContainerProps> = memo(
             id: lastCreateEvent.mint,
             name: lastCreateEvent.name,
             symbol: lastCreateEvent.symbol,
-            icon: lastCreateEvent.uri, 
+            icon: toHttpUri(lastCreateEvent.uri) || undefined,
             decimals: 6,
             tokenProgram: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
-            mcap: lastCreateEvent.marketCapSol * 200, 
-            liquidity: lastCreateEvent.vSolInBondingCurve * 200,
+            mcap: lastCreateEvent.marketCapSol * SOL_PRICE_USD,
+            liquidity: lastCreateEvent.vSolInBondingCurve * SOL_PRICE_USD,
             usdPrice: 0,
             launchpad: Launchpad.PUMPFUN,
           },
@@ -193,79 +159,61 @@ const TokenCardListContainer: React.FC<TokenCardListContainerProps> = memo(
 
         setPumpPools((prev) => {
           if (prev.some((p) => p.id === newPool.id)) return prev;
-          // Remove limit to allow endless streaming
           return [newPool, ...prev];
         });
-        
+
         subscribeTokenTrades([lastCreateEvent.mint]);
 
-        // Resolve metadata image and social links immediately
         (async () => {
-          try {
-            const { image, socials } = await resolveMetadataImage(lastCreateEvent.uri);
-            setPumpPools((prev) =>
-              prev.map((pool) =>
-                pool.id === lastCreateEvent.mint
-                  ? {
-                      ...pool,
-                      baseAsset: {
-                        ...pool.baseAsset,
-                        icon: image || (lastCreateEvent.uri && (lastCreateEvent.uri.startsWith('http') || lastCreateEvent.uri.startsWith('ipfs://')) ? lastCreateEvent.uri : pool.baseAsset.icon),
-                        website: socials?.website || pool.baseAsset.website,
-                        twitter: socials?.twitter || pool.baseAsset.twitter,
-                        telegram: socials?.telegram || pool.baseAsset.telegram,
-                      },
-                    }
-                  : pool
-              )
-            );
-          } catch (error) {
-            // Silently fail - will show placeholder image
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Failed to resolve metadata for', lastCreateEvent.mint, error);
-            }
-          }
+          const { image, socials } = await resolveMetadataImage(lastCreateEvent.uri);
+          if (!image && !socials) return;
+          setPumpPools((prev) =>
+            prev.map((pool) =>
+              pool.id === lastCreateEvent.mint
+                ? {
+                    ...pool,
+                    baseAsset: {
+                      ...pool.baseAsset,
+                      icon: image || pool.baseAsset.icon,
+                      website: socials?.website || pool.baseAsset.website,
+                      twitter: socials?.twitter || pool.baseAsset.twitter,
+                      telegram: socials?.telegram || pool.baseAsset.telegram,
+                    },
+                  }
+                : pool
+            )
+          );
         })();
       }
     }, [lastCreateEvent, subscribeTokenTrades, resolveMetadataImage]);
 
-    // Handle Trades (Updates)
     useEffect(() => {
       if (lastTradeEvent) {
-        setPumpPools((prev) => {
-          return prev.map((pool) => {
+        setPumpPools((prev) =>
+          prev.map((pool) => {
             if (pool.id === lastTradeEvent.mint) {
               return {
                 ...pool,
                 updatedAt: new Date().toISOString(),
-                bondingCurve: (lastTradeEvent.marketCapSol / 85) * 100,
+                bondingCurve: Math.min(100, (lastTradeEvent.marketCapSol / 85) * 100),
                 baseAsset: {
                   ...pool.baseAsset,
-                  mcap: lastTradeEvent.marketCapSol * 200,
-                  liquidity: lastTradeEvent.vSolInBondingCurve * 200,
-                }
+                  mcap: lastTradeEvent.marketCapSol * SOL_PRICE_USD,
+                  liquidity: lastTradeEvent.vSolInBondingCurve * SOL_PRICE_USD,
+                },
               };
             }
             return pool;
-          });
-        });
+          })
+        );
       }
     }, [lastTradeEvent]);
 
-    // Filter Pump Pools based on Tab
     const filteredPumpPools = pumpPools.filter((pool) => {
       const mcapUsd = pool.baseAsset.mcap || 0;
-
       if (tab === ExploreTab.NEW) return true;
-
-      if (tab === ExploreTab.GRADUATING) {
-        return mcapUsd >= 40000 && mcapUsd < 80000;
-      }
-
-      if (tab === ExploreTab.GRADUATED) {
-        return mcapUsd >= 80000;
-      }
-
+      if (tab === ExploreTab.GRADUATING) return mcapUsd >= 40000 && mcapUsd < 80000;
+      if (tab === ExploreTab.GRADUATED) return mcapUsd >= 80000;
       return false;
     });
 
@@ -273,12 +221,7 @@ const TokenCardListContainer: React.FC<TokenCardListContainerProps> = memo(
 
     const handleMouseEnter = useCallback(() => {
       if (!isHoverableDevice()) return;
-
-      if (!isPaused) {
-        // ONLY Pump Pools
-        const combined = [...filteredPumpPools];
-        setSnapshotData(combined);
-      }
+      if (!isPaused) setSnapshotData([...filteredPumpPools]);
       setIsPaused(true);
     }, [filteredPumpPools, isPaused, setIsPaused]);
 
@@ -289,14 +232,9 @@ const TokenCardListContainer: React.FC<TokenCardListContainerProps> = memo(
 
     const handleScroll = useCallback(() => {
       if (!isMobile || !listRef.current) return;
-
       const top = listRef.current.getBoundingClientRect().top;
-
       if (top <= 0) {
-        if (!isPaused) {
-          const combined = [...filteredPumpPools];
-          setSnapshotData(combined);
-        }
+        if (!isPaused) setSnapshotData([...filteredPumpPools]);
         setIsPaused(true);
       } else {
         setIsPaused(false);
@@ -313,39 +251,28 @@ const TokenCardListContainer: React.FC<TokenCardListContainerProps> = memo(
       };
     }, [isMobile, setIsPaused, handleScroll]);
 
-    // ONLY use Pump Data
-    const finalCurrentData = [...filteredPumpPools];
-    
     const applyFilters = (pools: Pool[]) => {
-      let filtered = pools;
-      if (searchTerm) {
-        const term = searchTerm.toLowerCase();
-        filtered = filtered.filter(p => 
-          p.baseAsset.name.toLowerCase().includes(term) || 
+      if (!searchTerm) return pools;
+      const term = searchTerm.toLowerCase();
+      return pools.filter(
+        (p) =>
+          p.baseAsset.name.toLowerCase().includes(term) ||
           p.baseAsset.symbol.toLowerCase().includes(term) ||
           p.baseAsset.id.toLowerCase().includes(term)
-        );
-      }
-      return filtered;
+      );
     };
 
-    const filteredFinalData = applyFilters(finalCurrentData);
-    
+    const filteredFinalData = applyFilters(filteredPumpPools);
     const displayData = isPaused
-      ? snapshotData?.map((snapshotPool) => {
-          const currentPump = filteredPumpPools.find(p => p.id === snapshotPool.id);
-          if (currentPump) return currentPump;
-          return snapshotPool;
-        })
+      ? (snapshotData || []).map((s) => filteredPumpPools.find((p) => p.id === s.id) || s)
       : filteredFinalData;
-
-    const finalDisplayData = isPaused ? applyFilters(displayData || []) : displayData;
+    const finalDisplayData = isPaused ? applyFilters(displayData) : displayData;
 
     return (
       <TokenCardList
         ref={listRef}
         data={finalDisplayData}
-        status={'success'} // Always success since we stream
+        status={'success'}
         timeframe={timeframe}
         trackPools
         className="lg:h-0 lg:min-h-full"
