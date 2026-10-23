@@ -236,6 +236,7 @@ export default function CreatePool() {
   const [createdTokenMint, setCreatedTokenMint] = useState<string>('');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [logoDragActive, setLogoDragActive] = useState(false);
+  const [pairWithVexlorebot, setPairWithVexlorebot] = useState(false);
 
   const form = useForm({
     defaultValues: {
@@ -338,7 +339,10 @@ export default function CreatePool() {
                 "amount": value.initialBuyAmount || 0, // Initial buy amount
                 "slippage": 10, 
                 "priorityFee": 0.005,
-                "pool": "pump"
+                "pool": "pump",
+                ...(pairWithVexlorebot && process.env.NEXT_PUBLIC_VEXLOREBOT_MINT
+                  ? { quoteMint: process.env.NEXT_PUBLIC_VEXLOREBOT_MINT }
+                  : {})
             })
         });
 
@@ -711,10 +715,10 @@ export default function CreatePool() {
                      {/* VEXLOREBOT Pair Option */}
                      <div className="mb-6 p-4 rounded-lg border border-primary/30 bg-primary/5">
                        <label className="flex items-center gap-3 cursor-pointer">
-                         <input type="checkbox" defaultChecked className="h-4 w-4 accent-primary" />
+                         <input type="checkbox" checked={pairWithVexlorebot} onChange={(e) => setPairWithVexlorebot(e.target.checked)} className="h-4 w-4 accent-primary" />
                          <div>
                            <span className="text-sm font-medium">Pair with VEXLOREBOT</span>
-                           <p className="text-xs text-muted-foreground mt-0.5">Fees collect in VEXLOREBOT instead of SOL (recommended for Vexlore ecosystem)</p>
+                           <p className="text-xs text-muted-foreground mt-0.5">Optional. Pair the bonding curve with VEXLOREBOT so fees accrue in VEXLOREBOT.</p>
                          </div>
                        </label>
                      </div>
