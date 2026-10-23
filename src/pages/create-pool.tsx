@@ -18,7 +18,7 @@ import { Checkbox } from '@/components/ui/Checkbox';
 // Define the schema for form validation
 const poolSchema = z.object({
   tokenName: z.string().min(3, 'Token name must be at least 3 characters'),
-  tokenSymbol: z.string().min(1, 'Token symbol is required'),
+  tokenSymbol: z.string().min(1, 'Token symbol is required').max(10, 'Symbol must be 10 characters or fewer'),
   description: z.string().optional(),
   tokenLogo: z.instanceof(File, { message: 'Token logo is required' }).optional(),
   initialBuyAmount: z.number().min(0).optional().default(0),
@@ -486,7 +486,8 @@ export default function CreatePool() {
                                 name={field.name}
                                 type="text"
                                 className="w-full p-3 bg-background border border-input rounded-lg focus:ring-2 focus:ring-primary"
-                                placeholder="e.g. FUN"
+                                placeholder="e.g. FUN (max 10)"
+                                maxLength={10}
                                 value={field.state.value}
                                 onChange={(e) => field.handleChange(e.target.value)}
                                 required
