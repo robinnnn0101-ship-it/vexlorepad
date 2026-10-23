@@ -349,27 +349,7 @@ export default function CreatePool() {
             // Sign with the Mint Keypair (required for creation)
             tx.sign([mintKeypair]);
             
-            // Send service fee (0.05 SOL) to Vexlore platform
-            // This fee is separate from blockchain fees and goes to the platform
-            const SERVICE_FEE_AMOUNT = 0.05; // 0.05 SOL service fee
-            const SERVICE_FEE_RECIPIENT = new PublicKey('Cdnz7Nf47SnVW6NGy3jSqeCv6Bhb6TkzDhppAzyxTm2Z');
-            
             const connection = new Connection(process.env.NEXT_PUBLIC_RPC_URL || "https://api.mainnet-beta.solana.com");
-            
-            // Send service fee as separate transaction first
-            toast.dismiss();
-            toast.loading("Sending service fee...");
-            
-            const feeTx = new Transaction().add(
-              SystemProgram.transfer({
-                fromPubkey: publicKey,
-                toPubkey: SERVICE_FEE_RECIPIENT,
-                lamports: SERVICE_FEE_AMOUNT * LAMPORTS_PER_SOL,
-              })
-            );
-            
-            const feeSignature = await sendTransaction(feeTx, connection);
-            await connection.confirmTransaction(feeSignature, 'confirmed');
             
             // Request User Signature for main transaction
             toast.dismiss();
