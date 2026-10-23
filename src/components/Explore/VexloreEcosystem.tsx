@@ -38,13 +38,21 @@ export const VexloreEcosystem = () => {
         if (raw) local = JSON.parse(raw);
       } catch {}
 
-      // server launches (current instance)
+      // shared launches (visible to everyone)
       let remote: Launch[] = [];
       try {
         const res = await fetch('/api/launches');
         const data = await res.json();
         remote = data.launches || [];
       } catch {}
+      // fallback to public file
+      if (remote.length === 0) {
+        try {
+          const res = await fetch('https://raw.githubusercontent.com/robinnnn0101-ship-it/vexlorepad/main/public/launches.json?t=' + Date.now());
+          const data = await res.json();
+          if (Array.isArray(data)) remote = data;
+        } catch {}
+      }
 
       // merge, unique by mint, newest first
       const map = new Map<string, Launch>();
