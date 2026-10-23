@@ -12,8 +12,8 @@ import { useState } from 'react';
 import { Button } from '../ui/button';
 
 const navItems = [
-  { href: '/', label: 'Explore', icon: Home },
   { href: '/create-pool', label: 'Launch', icon: FlaskConical },
+  { href: '/', label: 'Explore', icon: Home },
   { href: '/portfolio', label: 'Portfolio', icon: Wallet },
 ];
 
@@ -47,7 +47,7 @@ export const Sidebar = () => {
 
           <nav className="flex-1 space-y-1">
             {navItems.map((item) => {
-              const isActive = router.pathname === item.href;
+              const isActive = router.pathname === item.href || (item.href === '/create-pool' && router.pathname === '/');
               return (
                 <Link
                   key={item.href}
