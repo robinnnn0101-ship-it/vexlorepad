@@ -1,4 +1,5 @@
 import ExploreGrid from './ExploreGrid';
+import { VexloreEcosystem } from './VexloreEcosystem';
 import { DataStreamProvider } from '@/contexts/DataStreamProvider';
 import { ExploreMsgHandler } from './ExploreMsgHandler';
 import { ExploreProvider } from '@/contexts/ExploreProvider';
@@ -8,7 +9,8 @@ import { PumpFeedProvider } from '@/contexts/PumpFeedProvider';
 const Explore = () => {
   return (
     <ExploreContext>
-      <div className="py-8">
+      <div className="py-6 px-4 md:px-6">
+        <VexloreEcosystem />
         <ExploreGrid className="flex-1" />
       </div>
     </ExploreContext>
