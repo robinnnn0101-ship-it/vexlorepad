@@ -362,6 +362,19 @@ export default function CreatePool() {
             toast.success("Deployment Successful! Your token is live.");
             setCreatedTokenMint(mintAddress);
             setPoolCreated(true);
+
+            try {
+              const { recordLaunch } = await import('@/lib/recordLaunch');
+              await recordLaunch({
+                mint: mintAddress,
+                name: value.tokenName,
+                symbol: value.tokenSymbol,
+                description: value.description,
+                website: value.website,
+                twitter: value.twitter,
+                telegram: value.telegram,
+              });
+            } catch {}
         } else {
             const errData = await response.json().catch(() => ({}));
             throw new Error(errData.error || errData.message || "Failed to create launch transaction");
