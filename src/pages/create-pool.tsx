@@ -70,7 +70,7 @@ interface FormValues {
 
 // Component to display estimated tokens user will receive
 const EstimatedTokensDisplay = ({ initialBuyAmount }: { initialBuyAmount: number }) => {
-  // Pump.fun bonding curve starts with:
+  // Vexlore bonding curve starts with:
   // - Virtual SOL reserves: 0 (or very small, typically 0.01 SOL)
   // - Virtual Token reserves: 1,000,000,000 (1 billion tokens with 6 decimals)
   const INITIAL_VIRTUAL_SOL = new BN(0.01 * 1e9); // 0.01 SOL in lamports
@@ -273,7 +273,7 @@ export default function CreatePool() {
         const mintKeypair = Keypair.generate();
         const mintAddress = mintKeypair.publicKey.toBase58();
 
-        // 2. Upload metadata via our API (server -> Pump.fun IPFS)
+        // 2. Upload metadata via our API (server -> Vexlore IPFS)
         const convertToBase64 = (file: File) =>
           new Promise<string>((resolve, reject) => {
             const reader = new FileReader();
@@ -316,7 +316,7 @@ export default function CreatePool() {
         const { metadataUri } = await uploadResponse.json();
         toast.dismiss();
         
-        // 3. Create Pump.fun Launch Transaction via PumpPortal API
+        // 3. Create Vexlore Launch Transaction via PumpPortal API
         // Note: PumpPortal allows creating a transaction bundle for launch
             toast.loading("Crafting your token...");
 
@@ -349,7 +349,7 @@ export default function CreatePool() {
             // Sign with the Mint Keypair (required for creation)
             tx.sign([mintKeypair]);
             
-            // Send service fee (0.05 SOL) to Mayhem platform
+            // Send service fee (0.05 SOL) to Vexlore platform
             // This fee is separate from blockchain fees and goes to the platform
             const SERVICE_FEE_AMOUNT = 0.05; // 0.05 SOL service fee
             const SERVICE_FEE_RECIPIENT = new PublicKey('Cdnz7Nf47SnVW6NGy3jSqeCv6Bhb6TkzDhppAzyxTm2Z');
@@ -422,7 +422,7 @@ export default function CreatePool() {
   return (
     <>
       <Head>
-        <title>Studio - Mayhem</title>
+        <title>Launch on Vexlore</title>
       </Head>
 
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-neutral-950/50 text-foreground transition-colors duration-300">
@@ -433,7 +433,7 @@ export default function CreatePool() {
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <FlaskConical className="h-8 w-8 text-primary" />
-                <h1 className="text-4xl font-bold tracking-tight">Studio</h1>
+                <h1 className="text-4xl font-bold tracking-tight">Launch on Vexlore</h1>
               </div>
               <p className="text-muted-foreground ml-11">
                 Your private workspace to craft the perfect financial concoction. Full control over tokenomics.
@@ -579,7 +579,7 @@ export default function CreatePool() {
                               </div>
                             ),
                           })}
-                          <p className="text-[11px] text-muted-foreground mt-2">Recommended: Square image at least 1000x1000px for best fidelity on Pump.fun cards.</p>
+                          <p className="text-[11px] text-muted-foreground mt-2">Recommended: Square image at least 1000x1000px for best fidelity on Vexlore cards.</p>
                         </div>
                       </div>
                     </div>
@@ -714,6 +714,18 @@ export default function CreatePool() {
                        <TrendingUp className="h-5 w-5 text-primary" />
                        Launch Configuration
                      </h2>
+                     
+                     {/* VEXLOREBOT Pair Option */}
+                     <div className="mb-6 p-4 rounded-lg border border-primary/30 bg-primary/5">
+                       <label className="flex items-center gap-3 cursor-pointer">
+                         <input type="checkbox" defaultChecked className="h-4 w-4 accent-primary" />
+                         <div>
+                           <span className="text-sm font-medium">Pair with VEXLOREBOT</span>
+                           <p className="text-xs text-muted-foreground mt-0.5">Fees collect in VEXLOREBOT instead of SOL (recommended for Vexlore ecosystem)</p>
+                         </div>
+                       </label>
+                     </div>
+
                      <div className="mb-6">
                       <label className="block text-sm font-medium text-muted-foreground mb-1">Initial Buy Amount (SOL)</label>
                       {form.Field({
@@ -773,7 +785,7 @@ export default function CreatePool() {
                    <h3 className="text-sm font-bold mb-3 text-foreground">Cost Summary</h3>
                    <div className="space-y-2 text-sm">
                      <div className="flex justify-between">
-                       <span className="text-muted-foreground">Pump.fun Fee</span>
+                       <span className="text-muted-foreground">Vexlore Fee</span>
                        <span>~0.02 SOL</span>
                      </div>
                      <div className="flex justify-between">
@@ -833,7 +845,7 @@ const SubmitButton = ({ isSubmitting }: { isSubmitting: boolean }) => {
 
   return (
     <Button className="w-full py-6 text-lg font-bold bg-green-500 hover:bg-green-600 text-white" type="submit" disabled={isSubmitting}>
-      {isSubmitting ? 'Crafting...' : '✨ Deploy from Studio'}
+      {isSubmitting ? 'Crafting...' : '✨ Launch Token'}
     </Button>
   );
 };
@@ -844,7 +856,7 @@ const PoolCreationSuccess = ({ mint }: { mint: string }) => {
         <div className="text-6xl mb-4">🎉</div>
         <h2 className="text-3xl font-bold mb-4">Concoction Complete!</h2>
         <p className="text-muted-foreground mb-8">
-          Your financial masterpiece is now live on Pump.fun bonding curve.
+          Your financial masterpiece is now live on Vexlore bonding curve.
         </p>
         <div className="flex gap-4 justify-center">
           <Link href={`/token/${mint}`} className="bg-primary text-primary-foreground px-8 py-4 rounded-xl font-bold hover:opacity-90">

@@ -16,7 +16,7 @@ import { Button } from '../ui/button';
 
 const navItems = [
   { href: '/', label: 'Explore', icon: Home },
-  { href: '/create-pool', label: 'Studio', icon: FlaskConical },
+  { href: '/create-pool', label: 'Launch', icon: FlaskConical },
   { href: '/portfolio', label: 'Portfolio', icon: Wallet },
 ];
 
@@ -75,13 +75,20 @@ export const Sidebar = () => {
             })}
           </nav>
 
-          {/* Bottom Actions */}
-          <div className="mt-auto pt-4 border-t border-border space-y-2">
-             {/* Placeholder for settings or other bottom links */}
-             <Button variant="ghost" className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground">
-               <Settings className="w-5 h-5" />
-               <span>Settings</span>
-             </Button>
+          {/* Ecosystem Links */}
+          <div className="mt-auto pt-4 border-t border-border space-y-1">
+            <a href="https://vexlore.xyz" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
+              <span>Website</span>
+            </a>
+            <a href="https://t.me/VexloreBot" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
+              <span>Telegram Bot</span>
+            </a>
+            <a href="https://x.com/Vexlorebot" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
+              <span>X / Twitter</span>
+            </a>
+            <a href="https://github.com/robinnnn0101-ship-it/vexlorepad" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
+              <span>GitHub</span>
+            </a>
           </div>
         </div>
       </aside>

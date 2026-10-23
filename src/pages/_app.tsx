@@ -41,9 +41,9 @@ export default function App({ Component, pageProps }: AppProps) {
             env: (process.env.NEXT_PUBLIC_SOLANA_NETWORK as 'mainnet-beta' | 'devnet') || 'mainnet-beta',
             autoConnect: true,
             metadata: {
-              name: 'Mayhem',
-              description: 'Pump.fun Token Launchpad & Trading Platform',
-              url: typeof window !== 'undefined' ? window.location.origin : 'https://mayhem.vercel.app',
+              name: 'Vexlore',
+              description: 'Vexlore Branded Launchpad & Trading',
+              url: typeof window !== 'undefined' ? window.location.origin : 'https://vexlore.fun',
               iconUrls: typeof window !== 'undefined' ? [`${window.location.origin}/favicon.ico`] : ['/favicon.ico'],
             },
             // notificationCallback: WalletNotification,

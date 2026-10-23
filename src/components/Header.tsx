@@ -209,9 +209,10 @@ export const Header = () => {
   return (
     <header className="w-full px-4 py-3 flex items-center justify-between bg-background/80 backdrop-blur-sm sticky top-0 z-50 border-b border-border">
       {/* Logo Section */}
-      <Link href="/" className="flex items-center shrink-0 mr-4">
+      <Link href="/" className="flex items-center shrink-0 mr-4 gap-2">
+        <img src="/vexlore-logo.jpg" alt="Vexlore" className="h-8 w-8 rounded-md object-cover" />
         <span className="whitespace-nowrap text-lg md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-neutral-900 to-neutral-600 dark:from-white dark:to-neutral-400">
-          Mayhem
+          Vexlore
         </span>
       </Link>
 
