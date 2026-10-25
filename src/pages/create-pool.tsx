@@ -321,7 +321,7 @@ export default function CreatePool() {
         // Note: PumpPortal allows creating a transaction bundle for launch
             toast.loading("Crafting your token...");
 
-        // Real VEXLOREBOT pairing uses official Pump SDK
+        // Real VEXLOREBOT pairing (create only — initial buy forced to 0 so no VEXLOREBOT needed)
         if (pairWithVexlorebot && process.env.NEXT_PUBLIC_VEXLOREBOT_MINT) {
           const { buildPairedCreateTx } = await import('@/lib/pair');
           const connection = new Connection(process.env.NEXT_PUBLIC_RPC_URL || "https://api.mainnet-beta.solana.com");
