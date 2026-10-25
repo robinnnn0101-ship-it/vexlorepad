@@ -1,1 +1,24 @@
-[{"mint": "7TX2KvyV93C8o9vTgV2ARnnvDtkejRHpFn5P2LdgTTGD", "name": "jeff", "symbol": "jeff", "createdAt": "2026-10-23T21:21:02.535Z"}, {"mint": "D15gTp3e7bBVeKeYm7bRLmv6LkWyNfQnevfybyxuLxrM", "name": "vexcat", "symbol": "vexcat", "createdAt": "2026-10-23T20:09:25.604Z"}]
+[
+  {
+    "mint": "87tT7CNo4MhVLVVX3gweumPeg7P3zvnSEKX2GVUyS1nB",
+    "name": "CHILDHOOD",
+    "symbol": "CHILDHOOD",
+    "description": "Those days were good ",
+    "website": "",
+    "twitter": "",
+    "telegram": "",
+    "createdAt": "2026-10-25T06:43:07.025Z"
+  },
+  {
+    "mint": "7TX2KvyV93C8o9vTgV2ARnnvDtkejRHpFn5P2LdgTTGD",
+    "name": "jeff",
+    "symbol": "jeff",
+    "createdAt": "2026-10-23T21:21:02.535Z"
+  },
+  {
+    "mint": "D15gTp3e7bBVeKeYm7bRLmv6LkWyNfQnevfybyxuLxrM",
+    "name": "vexcat",
+    "symbol": "vexcat",
+    "createdAt": "2026-10-23T20:09:25.604Z"
+  }
+]
