@@ -325,7 +325,7 @@ export default function CreatePool() {
         if (pairWithVexlorebot && process.env.NEXT_PUBLIC_VEXLOREBOT_MINT) {
           try {
             const { buildPairedCreateTx } = await import('@/lib/pair');
-            const rpc = process.env.NEXT_PUBLIC_RPC_URL || "https://api.mainnet-beta.solana.com";
+            const rpc = process.env.NEXT_PUBLIC_RPC_URL || "https://solana-rpc.publicnode.com";
             const connection = new Connection(rpc, "confirmed");
             const pairedTx = await buildPairedCreateTx({
               connection,
@@ -377,7 +377,7 @@ export default function CreatePool() {
             // Sign with the Mint Keypair (required for creation)
             tx.sign([mintKeypair]);
             
-            const connection = new Connection(process.env.NEXT_PUBLIC_RPC_URL || "https://api.mainnet-beta.solana.com");
+            const connection = new Connection(process.env.NEXT_PUBLIC_RPC_URL || "https://solana-rpc.publicnode.com");
             
             // Request User Signature for main transaction
             toast.dismiss();
