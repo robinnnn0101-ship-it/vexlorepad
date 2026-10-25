@@ -114,18 +114,30 @@ export const VexloreEcosystem = () => {
         ) : (
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {launches.map((l) => (
-              <div key={l.mint} className="flex items-center justify-between rounded-lg border border-border/60 bg-card/60 px-3 py-2 text-xs hover:border-primary/40">
-                <a href={`https://pump.fun/${l.mint}`} target="_blank" rel="noopener noreferrer" className="min-w-0 flex-1">
-                  <div className="font-medium truncate">{l.symbol}</div>
-                  <div className="truncate text-muted-foreground">{l.name}</div>
-                </a>
-                <button
-                  onClick={() => navigator.clipboard.writeText(l.mint)}
-                  className="ml-2 text-muted-foreground hover:text-foreground"
-                  title="Copy CA"
-                >
-                  <ExternalLink className="h-3 w-3" />
-                </button>
+              <div key={l.mint} className="rounded-lg border border-border/60 bg-card/60 p-3 text-xs">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="min-w-0">
+                    <div className="font-semibold truncate">{l.symbol}</div>
+                    <div className="truncate text-muted-foreground">{l.name}</div>
+                  </div>
+                  <button
+                    onClick={() => navigator.clipboard.writeText(l.mint)}
+                    className="ml-2 rounded px-2 py-1 text-[10px] border border-border hover:bg-muted"
+                    title="Copy CA"
+                  >
+                    Copy CA
+                  </button>
+                </div>
+                <div className="font-mono text-[10px] text-muted-foreground truncate mb-2">{l.mint}</div>
+                <div className="h-10 flex items-end gap-0.5">
+                  {[3,5,4,6,5,7,6,8,7,9].map((h,i) => (
+                    <div key={i} className="flex-1 bg-primary/40 rounded-sm" style={{height: h*4}} />
+                  ))}
+                </div>
+                <div className="mt-2 flex gap-3 text-[10px] text-muted-foreground">
+                  <span>Supply: 1B</span>
+                  <span>Decimals: 6</span>
+                </div>
               </div>
             ))}
           </div>
