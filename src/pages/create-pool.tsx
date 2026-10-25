@@ -321,28 +321,45 @@ export default function CreatePool() {
         // Note: PumpPortal allows creating a transaction bundle for launch
             toast.loading("Crafting your token...");
 
+        // Real VEXLOREBOT pairing uses official Pump SDK
+        if (pairWithVexlorebot && process.env.NEXT_PUBLIC_VEXLOREBOT_MINT) {
+          const { buildPairedCreateTx } = await import('@/lib/pair');
+          const connection = new Connection(process.env.NEXT_PUBLIC_RPC_URL || "https://api.mainnet-beta.solana.com");
+          const pairedTx = await buildPairedCreateTx({
+            connection,
+            mintKeypair,
+            creator: publicKey,
+            name: value.tokenName,
+            symbol: value.tokenSymbol,
+            uri: metadataUri,
+            quoteMint: new PublicKey(process.env.NEXT_PUBLIC_VEXLOREBOT_MINT),
+          });
+          toast.dismiss();
+          toast.loading("Please sign the transaction...");
+          await sendTransaction(pairedTx, connection);
+          // record and return
+          try {
+            const { recordLaunch } = await import('@/lib/recordLaunch');
+            await recordLaunch({ mint: mintAddress, name: value.tokenName, symbol: value.tokenSymbol, description: value.description, website: value.website, twitter: value.twitter, telegram: value.telegram });
+          } catch {}
+          toast.dismiss();
+          toast.success("Token launched with VEXLOREBOT pairing!");
+          return;
+        }
+
         const response = await fetch(`https://pumpportal.fun/api/trade-local`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 "publicKey": publicKey.toBase58(),
                 "action": "create",
-                "tokenMetadata": {
-                    name: value.tokenName,
-                    symbol: value.tokenSymbol,
-                    uri: metadataUri
-                },
+                "tokenMetadata": { name: value.tokenName, symbol: value.tokenSymbol, uri: metadataUri },
                 "mint": mintAddress,
                 "denominatedInSol": "true",
-                "amount": value.initialBuyAmount || 0, // Initial buy amount
+                "amount": value.initialBuyAmount || 0,
                 "slippage": 10, 
                 "priorityFee": 0.005,
-                "pool": "pump",
-                ...(pairWithVexlorebot && process.env.NEXT_PUBLIC_VEXLOREBOT_MINT
-                  ? { quoteMint: process.env.NEXT_PUBLIC_VEXLOREBOT_MINT }
-                  : {})
+                "pool": "pump"
             })
         });
 
