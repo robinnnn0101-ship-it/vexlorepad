@@ -114,19 +114,19 @@ export const VexloreEcosystem = () => {
         ) : (
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {launches.map((l) => (
-              <a
-                key={l.mint}
-                href={`https://pump.fun/${l.mint}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-between rounded-lg border border-border/60 bg-card/60 px-3 py-2 text-xs hover:border-primary/40"
-              >
-                <div className="min-w-0">
+              <div key={l.mint} className="flex items-center justify-between rounded-lg border border-border/60 bg-card/60 px-3 py-2 text-xs hover:border-primary/40">
+                <a href={`https://pump.fun/${l.mint}`} target="_blank" rel="noopener noreferrer" className="min-w-0 flex-1">
                   <div className="font-medium truncate">{l.symbol}</div>
                   <div className="truncate text-muted-foreground">{l.name}</div>
-                </div>
-                <ExternalLink className="ml-2 h-3 w-3 shrink-0 text-muted-foreground" />
-              </a>
+                </a>
+                <button
+                  onClick={() => navigator.clipboard.writeText(l.mint)}
+                  className="ml-2 text-muted-foreground hover:text-foreground"
+                  title="Copy CA"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                </button>
+              </div>
             ))}
           </div>
         )}
