@@ -323,28 +323,35 @@ export default function CreatePool() {
 
         // Real VEXLOREBOT pairing (create only — initial buy forced to 0 so no VEXLOREBOT needed)
         if (pairWithVexlorebot && process.env.NEXT_PUBLIC_VEXLOREBOT_MINT) {
-          const { buildPairedCreateTx } = await import('@/lib/pair');
-          const connection = new Connection(process.env.NEXT_PUBLIC_RPC_URL || "https://api.mainnet-beta.solana.com");
-          const pairedTx = await buildPairedCreateTx({
-            connection,
-            mintKeypair,
-            creator: publicKey,
-            name: value.tokenName,
-            symbol: value.tokenSymbol,
-            uri: metadataUri,
-            quoteMint: new PublicKey(process.env.NEXT_PUBLIC_VEXLOREBOT_MINT),
-          });
-          toast.dismiss();
-          toast.loading("Please sign the transaction...");
-          await sendTransaction(pairedTx, connection);
-          // record and return
           try {
-            const { recordLaunch } = await import('@/lib/recordLaunch');
-            await recordLaunch({ mint: mintAddress, name: value.tokenName, symbol: value.tokenSymbol, description: value.description, website: value.website, twitter: value.twitter, telegram: value.telegram });
-          } catch {}
-          toast.dismiss();
-          toast.success("Token launched with VEXLOREBOT pairing!");
-          return;
+            const { buildPairedCreateTx } = await import('@/lib/pair');
+            const rpc = process.env.NEXT_PUBLIC_RPC_URL || "https://api.mainnet-beta.solana.com";
+            const connection = new Connection(rpc, "confirmed");
+            const pairedTx = await buildPairedCreateTx({
+              connection,
+              mintKeypair,
+              creator: publicKey,
+              name: value.tokenName,
+              symbol: value.tokenSymbol,
+              uri: metadataUri,
+              quoteMint: new PublicKey(process.env.NEXT_PUBLIC_VEXLOREBOT_MINT),
+            });
+            toast.dismiss();
+            toast.loading("Please sign the transaction...");
+            await sendTransaction(pairedTx, connection);
+            try {
+              const { recordLaunch } = await import('@/lib/recordLaunch');
+              await recordLaunch({ mint: mintAddress, name: value.tokenName, symbol: value.tokenSymbol, description: value.description, website: value.website, twitter: value.twitter, telegram: value.telegram });
+            } catch {}
+            toast.dismiss();
+            toast.success("Token launched with VEXLOREBOT pairing!");
+            return;
+          } catch (e: any) {
+            toast.dismiss();
+            const msg = e?.message || String(e);
+            toast.error("Pairing failed: " + msg.slice(0, 120));
+            throw e;
+          }
         }
 
         const response = await fetch(`https://pumpportal.fun/api/trade-local`, {
