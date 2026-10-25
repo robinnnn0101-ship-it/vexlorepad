@@ -326,7 +326,7 @@ export default function CreatePool() {
           try {
             const { buildPairedCreateTx } = await import('@/lib/pair');
             const rpc = process.env.NEXT_PUBLIC_RPC_URL || "https://solana-rpc.publicnode.com";
-            const connection = new Connection(rpc, "confirmed");
+            const connection = new Connection(rpc, { commitment: "confirmed", confirmTransactionInitialTimeout: 60000 });
             const pairedTx = await buildPairedCreateTx({
               connection,
               mintKeypair,
