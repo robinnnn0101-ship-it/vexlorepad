@@ -720,13 +720,13 @@ export default function CreatePool() {
                          <input type="checkbox" checked={pairWithVexlorebot} onChange={(e) => setPairWithVexlorebot(e.target.checked)} className="h-4 w-4 accent-primary" />
                          <div>
                            <span className="text-sm font-medium">Pair with VEXLOREBOT</span>
-                           <p className="text-xs text-muted-foreground mt-0.5">Optional. Pair the bonding curve with VEXLOREBOT so fees accrue in VEXLOREBOT.</p>
+                           <p className="text-xs text-muted-foreground mt-0.5">Optional. Pair the curve with VEXLOREBOT. Initial buy stays in SOL either way.</p>
                          </div>
                        </label>
                      </div>
 
                      <div className="mb-6">
-                      <label className="block text-sm font-medium text-muted-foreground mb-1">Initial Buy Amount (SOL)</label>
+                      <label className="block text-sm font-medium text-muted-foreground mb-1">Initial Buy Amount (SOL) — always SOL, pairing or not</label>
                       {form.Field({
                         name: 'initialBuyAmount',
                         children: (field) => (
