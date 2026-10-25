@@ -599,20 +599,12 @@ export default function CreatePool() {
                         <label className="block text-sm font-medium text-muted-foreground mb-1">
                           Total Supply
                         </label>
-                        {form.Field({
-                          name: 'totalSupply',
-                          children: (field) => (
-                            <input
-                              type="number"
-                              min="1000"
-                              step="1000000"
-                              className="w-full p-3 bg-background/50 border border-input rounded-lg focus:ring-2 focus:ring-primary"
-                              value={field.state.value}
-                              onChange={(e) => field.handleChange(Number(e.target.value))}
-                              placeholder="1,000,000,000"
+                        <input
+                              type="text"
+                              readOnly
+                              className="w-full p-3 bg-background/30 border border-input rounded-lg opacity-70"
+                              value="1,000,000,000"
                             />
-                          ),
-                        })}
                         <p className="text-xs text-muted-foreground mt-1">
                           Total tokens to mint (default: 1B)
                         </p>
@@ -623,20 +615,12 @@ export default function CreatePool() {
                         <label className="block text-sm font-medium text-muted-foreground mb-1">
                           Decimals
                         </label>
-                        {form.Field({
-                          name: 'decimals',
-                          children: (field) => (
-                            <input
-                              type="number"
-                              min="0"
-                              max="9"
-                              className="w-full p-3 bg-background/50 border border-input rounded-lg focus:ring-2 focus:ring-primary"
-                              value={field.state.value}
-                              onChange={(e) => field.handleChange(Number(e.target.value))}
-                              placeholder="6"
+                        <input
+                              type="text"
+                              readOnly
+                              className="w-full p-3 bg-background/30 border border-input rounded-lg opacity-70"
+                              value="6"
                             />
-                          ),
-                        })}
                         <p className="text-xs text-muted-foreground mt-1">
                           Token precision (0-9, default: 6)
                         </p>
