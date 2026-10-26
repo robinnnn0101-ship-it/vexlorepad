@@ -1,5 +1,6 @@
-import { Connection, Keypair, PublicKey, Transaction, SystemProgram } from '@solana/web3.js';
-import { PUMP_SDK, OnlinePumpSdk } from '@pump-fun/pump-sdk';
+import { Connection, Keypair, PublicKey, Transaction } from '@solana/web3.js';
+import { PUMP_SDK } from '@pump-fun/pump-sdk';
+import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 
 export async function buildPairedCreateTx(params: {
   connection: Connection;
@@ -9,10 +10,8 @@ export async function buildPairedCreateTx(params: {
   symbol: string;
   uri: string;
   quoteMint: PublicKey;
-  initialBuyQuote?: number;
 }) {
-  const online = new OnlinePumpSdk(params.connection);
-  const quote = await online.resolveQuoteMint(params.quoteMint);
+  // Direct createV2 without OnlinePumpSdk (avoids extra RPC calls that 403)
   const ix = await PUMP_SDK.createV2Instruction({
     mint: params.mintKeypair.publicKey,
     name: params.name,
@@ -21,13 +20,13 @@ export async function buildPairedCreateTx(params: {
     creator: params.creator,
     user: params.creator,
     mayhemMode: false,
-    quoteMint: quote.mint,
-    quoteTokenProgram: quote.quoteTokenProgram,
-    pumpQuote: quote.pumpQuote?.accounts,
+    quoteMint: params.quoteMint,
+    quoteTokenProgram: TOKEN_PROGRAM_ID,
   });
   const tx = new Transaction().add(ix);
   tx.feePayer = params.creator;
-  tx.recentBlockhash = (await params.connection.getLatestBlockhash()).blockhash;
+  const { blockhash } = await params.connection.getLatestBlockhash("confirmed");
+  tx.recentBlockhash = blockhash;
   tx.partialSign(params.mintKeypair);
   return tx;
 }
