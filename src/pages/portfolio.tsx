@@ -10,7 +10,7 @@ import { Badge } from '../components/ui/badge';
 import { Wallet, CreditCard, History, Settings, Twitter, Copy, Plus, Trash2, ExternalLink, RefreshCw, Eye, EyeOff, TrendingUp } from 'lucide-react';
 import { shortenAddress } from '@/lib/utils';
 import { toast } from 'sonner';
-import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
+import { LAMPORTS_PER_SOL, PublicKey, Connection } from '@solana/web3.js';
 
 // --- Types ---
 type TrackedWallet = {
@@ -36,7 +36,7 @@ const WalletBalance = ({ address }: { address: string }) => {
   const [balance, setBalance] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!address || !connection) return; // Added connection check
+    if (!address) return;
     
     let isMounted = true;
 
@@ -46,14 +46,9 @@ const WalletBalance = ({ address }: { address: string }) => {
         const rpc = process.env.NEXT_PUBLIC_RPC_URL || "https://solana-rpc.publicnode.com";
         const conn = new Connection(rpc);
         const bal = await conn.getBalance(pubKey);
-        if (isMounted) {
-            setBalance(bal / LAMPORTS_PER_SOL);
-        }
+        if (isMounted) setBalance(bal / LAMPORTS_PER_SOL);
       } catch (e) {
-        // Silently fail - balance is optional
-        if (process.env.NODE_ENV === 'development') {
-          console.error("Error fetching balance", e);
-        }
+        console.error("balance error", e);
       }
     };
     
