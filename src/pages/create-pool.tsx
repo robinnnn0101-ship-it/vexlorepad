@@ -337,11 +337,20 @@ export default function CreatePool() {
           portalBody.quoteMint = process.env.NEXT_PUBLIC_VEXLOREBOT_MINT;
         }
 
-        const response = await fetch(`https://pumpportal.fun/api/trade-local`, {
+        let response = await fetch(`https://pumpportal.fun/api/trade-local`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(portalBody)
         });
+        // If pairing quoteMint fails, retry without it
+        if (!response.ok && portalBody.quoteMint) {
+          delete portalBody.quoteMint;
+          response = await fetch(`https://pumpportal.fun/api/trade-local`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(portalBody)
+          });
+        }
 
 
 
