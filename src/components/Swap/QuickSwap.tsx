@@ -14,7 +14,8 @@ interface QuickSwapProps {
 }
 
 export const QuickSwap: React.FC<QuickSwapProps> = ({ mint }) => {
-  const { connection } = useConnection();
+  const { connection: walletConnection } = useConnection();
+  const connection = walletConnection || new Connection(process.env.NEXT_PUBLIC_RPC_URL || "https://solana-rpc.publicnode.com");
   const { publicKey, signTransaction, sendTransaction } = useWallet();
   
   const [mode, setMode] = useState<'buy' | 'sell'>('buy');
