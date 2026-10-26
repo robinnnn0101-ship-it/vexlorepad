@@ -41,14 +41,17 @@ const WalletBalance = ({ address }: { address: string }) => {
     let isMounted = true;
 
     const fetchBalance = async () => {
-      try {
-        const pubKey = new PublicKey(address);
-        const rpc = process.env.NEXT_PUBLIC_RPC_URL || "https://solana-rpc.publicnode.com";
-        const conn = new Connection(rpc);
-        const bal = await conn.getBalance(pubKey);
-        if (isMounted) setBalance(bal / LAMPORTS_PER_SOL);
-      } catch (e) {
-        console.error("balance error", e);
+      const rpcs = [
+        process.env.NEXT_PUBLIC_RPC_URL,
+        "https://solana-rpc.publicnode.com",
+        "https://api.mainnet-beta.solana.com",
+      ].filter(Boolean) as string[];
+      for (const rpc of rpcs) {
+        try {
+          const conn = new Connection(rpc, "confirmed");
+          const bal = await conn.getBalance(new PublicKey(address));
+          if (isMounted) { setBalance(bal / LAMPORTS_PER_SOL); return; }
+        } catch (e) { console.error("rpc fail", rpc, e); }
       }
     };
     
