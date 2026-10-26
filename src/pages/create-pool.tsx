@@ -786,28 +786,6 @@ export default function CreatePool() {
 
               {/* Right Column: Launch Info */}
               <div className="lg:w-[350px] space-y-6 sticky top-24 h-fit">
-                 <div className="bg-secondary/20 rounded-xl p-6 border border-border/50">
-                   <h3 className="text-sm font-bold mb-3 text-foreground">Cost Summary</h3>
-                   <div className="space-y-2 text-sm">
-                     <div className="flex justify-between">
-                       <span className="text-muted-foreground">Vexlore Fee</span>
-                       <span>~0.02 SOL</span>
-                     </div>
-                     <div className="flex justify-between">
-                       <span className="text-muted-foreground">Service Fee</span>
-                       <span>0.05 SOL</span>
-                     </div>
-                     <div className="flex justify-between">
-                       <span className="text-muted-foreground">Initial Buy</span>
-                       <span>{form.getFieldValue('initialBuyAmount') || 0} SOL</span>
-                     </div>
-                     <div className="border-t border-border my-2 pt-2 flex justify-between font-bold">
-                        <span>Est. Total</span>
-                        <span>{(0.07 + (form.getFieldValue('initialBuyAmount') || 0)).toFixed(3)} SOL</span>
-                     </div>
-                   </div>
-                 </div>
-
                  {/* Estimated Tokens */}
                  {form.getFieldValue('initialBuyAmount') > 0 && (
                    <div className="bg-card/50 backdrop-blur-sm rounded-xl p-6 border border-border/50 shadow-lg">
