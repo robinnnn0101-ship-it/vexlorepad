@@ -43,8 +43,8 @@ const WalletBalance = ({ address }: { address: string }) => {
     const fetchBalance = async () => {
       try {
         const pubKey = new PublicKey(address);
-        const rpc = process.env.NEXT_PUBLIC_RPC_URL || "https://api.mainnet-beta.solana.com";
-        const conn = connection || new Connection(rpc);
+        const rpc = process.env.NEXT_PUBLIC_RPC_URL || "https://solana-rpc.publicnode.com";
+        const conn = new Connection(rpc);
         const bal = await conn.getBalance(pubKey);
         if (isMounted) {
             setBalance(bal / LAMPORTS_PER_SOL);
