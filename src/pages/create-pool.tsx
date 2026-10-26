@@ -321,54 +321,29 @@ export default function CreatePool() {
         // Note: PumpPortal allows creating a transaction bundle for launch
             toast.loading("Crafting your token...");
 
-        // Real VEXLOREBOT pairing (create only — initial buy forced to 0 so no VEXLOREBOT needed)
+        // Pairing via PumpPortal (same path that works) with quoteMint
+        const portalBody: any = {
+          publicKey: publicKey.toBase58(),
+          action: "create",
+          tokenMetadata: { name: value.tokenName, symbol: value.tokenSymbol, uri: metadataUri },
+          mint: mintAddress,
+          denominatedInSol: "true",
+          amount: value.initialBuyAmount || 0,
+          slippage: 10,
+          priorityFee: 0.005,
+          pool: "pump",
+        };
         if (pairWithVexlorebot && process.env.NEXT_PUBLIC_VEXLOREBOT_MINT) {
-          try {
-            const { buildPairedCreateTx } = await import('@/lib/pair');
-            const rpc = process.env.NEXT_PUBLIC_RPC_URL || "https://solana-rpc.publicnode.com";
-            const connection = new Connection(rpc, { commitment: "confirmed", confirmTransactionInitialTimeout: 60000 });
-            const pairedTx = await buildPairedCreateTx({
-              connection,
-              mintKeypair,
-              creator: publicKey,
-              name: value.tokenName,
-              symbol: value.tokenSymbol,
-              uri: metadataUri,
-              quoteMint: new PublicKey(process.env.NEXT_PUBLIC_VEXLOREBOT_MINT),
-            });
-            toast.dismiss();
-            toast.loading("Please sign the transaction...");
-            await sendTransaction(pairedTx, connection);
-            try {
-              const { recordLaunch } = await import('@/lib/recordLaunch');
-              await recordLaunch({ mint: mintAddress, name: value.tokenName, symbol: value.tokenSymbol, description: value.description, website: value.website, twitter: value.twitter, telegram: value.telegram });
-            } catch {}
-            toast.dismiss();
-            toast.success("Token launched with VEXLOREBOT pairing!");
-            return;
-          } catch (e: any) {
-            toast.dismiss();
-            const msg = e?.message || String(e);
-            toast.error("Pairing failed: " + msg.slice(0, 120));
-            throw e;
-          }
+          portalBody.quoteMint = process.env.NEXT_PUBLIC_VEXLOREBOT_MINT;
         }
 
         const response = await fetch(`https://pumpportal.fun/api/trade-local`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                "publicKey": publicKey.toBase58(),
-                "action": "create",
-                "tokenMetadata": { name: value.tokenName, symbol: value.tokenSymbol, uri: metadataUri },
-                "mint": mintAddress,
-                "denominatedInSol": "true",
-                "amount": value.initialBuyAmount || 0,
-                "slippage": 10, 
-                "priorityFee": 0.005,
-                "pool": "pump"
-            })
+            body: JSON.stringify(portalBody)
         });
+
+
 
         if(response.status === 200){
             const data = await response.arrayBuffer();
