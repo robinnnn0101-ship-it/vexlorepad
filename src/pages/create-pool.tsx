@@ -321,7 +321,34 @@ export default function CreatePool() {
         // Note: PumpPortal allows creating a transaction bundle for launch
             toast.loading("Crafting your token...");
 
-        // Pairing via PumpPortal (same path that works) with quoteMint
+        // Real VEXLOREBOT pairing via official Pump SDK
+        if (pairWithVexlorebot && process.env.NEXT_PUBLIC_VEXLOREBOT_MINT) {
+          const { buildPairedCreateTx } = await import('@/lib/pair');
+          const rpc = process.env.NEXT_PUBLIC_RPC_URL || "https://solana-rpc.publicnode.com";
+          const connection = new Connection(rpc, "confirmed");
+          const pairedTx = await buildPairedCreateTx({
+            connection,
+            mintKeypair,
+            creator: publicKey,
+            name: value.tokenName,
+            symbol: value.tokenSymbol,
+            uri: metadataUri,
+            quoteMint: new PublicKey(process.env.NEXT_PUBLIC_VEXLOREBOT_MINT),
+          });
+          toast.dismiss();
+          toast.loading("Please sign the paired transaction...");
+          await sendTransaction(pairedTx, connection);
+          try {
+            const { recordLaunch } = await import('@/lib/recordLaunch');
+            await recordLaunch({ mint: mintAddress, name: value.tokenName, symbol: value.tokenSymbol, description: value.description, website: value.website, twitter: value.twitter, telegram: value.telegram });
+          } catch {}
+          toast.dismiss();
+          toast.success("Token launched paired with VEXLOREBOT!");
+          setCreatedTokenMint(mintAddress);
+          setPoolCreated(true);
+          return;
+        }
+
         const portalBody: any = {
           publicKey: publicKey.toBase58(),
           action: "create",
@@ -333,24 +360,12 @@ export default function CreatePool() {
           priorityFee: 0.005,
           pool: "pump",
         };
-        if (pairWithVexlorebot && process.env.NEXT_PUBLIC_VEXLOREBOT_MINT) {
-          portalBody.quoteMint = process.env.NEXT_PUBLIC_VEXLOREBOT_MINT;
-        }
 
-        let response = await fetch(`https://pumpportal.fun/api/trade-local`, {
+        const response = await fetch(`https://pumpportal.fun/api/trade-local`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(portalBody)
         });
-        // If pairing quoteMint fails, retry without it
-        if (!response.ok && portalBody.quoteMint) {
-          delete portalBody.quoteMint;
-          response = await fetch(`https://pumpportal.fun/api/trade-local`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(portalBody)
-          });
-        }
 
 
 
