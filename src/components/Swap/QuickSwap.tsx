@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { ArrowDown, Wallet, RefreshCw } from 'lucide-react';
 import { useConnection, useWallet } from '@jup-ag/wallet-adapter';
-import { LAMPORTS_PER_SOL, PublicKey, Transaction } from '@solana/web3.js';
+import { LAMPORTS_PER_SOL, PublicKey, Transaction, Connection } from '@solana/web3.js';
 import { PumpFunSDK } from '@/lib/pump-fun';
 import { getAssociatedTokenAddress } from '@solana/spl-token';
 import BN from 'bn.js';
