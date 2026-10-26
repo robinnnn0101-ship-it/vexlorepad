@@ -337,13 +337,16 @@ export default function CreatePool() {
           });
           toast.dismiss();
           toast.loading("Please sign the paired transaction...");
-          await sendTransaction(pairedTx, connection);
+          const sig = await sendTransaction(pairedTx, connection);
+          toast.loading("Confirming...");
+          await connection.confirmTransaction(sig, "confirmed");
           try {
             const { recordLaunch } = await import('@/lib/recordLaunch');
             await recordLaunch({ mint: mintAddress, name: value.tokenName, symbol: value.tokenSymbol, description: value.description, website: value.website, twitter: value.twitter, telegram: value.telegram });
           } catch {}
           toast.dismiss();
-          toast.success("Token launched paired with VEXLOREBOT!");
+          toast.success(`Paired token live! CA: ${mintAddress.slice(0,8)}...`);
+          window.open(`https://solscan.io/tx/${sig}`, "_blank");
           setCreatedTokenMint(mintAddress);
           setPoolCreated(true);
           return;
