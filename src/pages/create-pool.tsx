@@ -363,7 +363,7 @@ export default function CreatePool() {
           denominatedInSol: "true",
           amount: value.initialBuyAmount || 0,
           slippage: 10,
-          priorityFee: 0.005,
+          priorityFee: tokenomics.scannerGatedFees ? 0.001 : 0.005,
           pool: "pump",
         };
 
