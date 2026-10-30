@@ -1,3 +1,13 @@
+export type TokenomicsCommitments = {
+  pairWithVexlorebot?: boolean;
+  scannerGatedFees?: boolean;
+  graduationRitual?: boolean;
+  loreLockedSupply?: boolean;
+  volumeToLore?: boolean;
+  earlyExitPenalty?: boolean;
+  earlyExitPercent?: number;
+};
+
 export type LaunchPayload = {
   mint: string;
   name: string;
@@ -6,12 +16,12 @@ export type LaunchPayload = {
   website?: string;
   twitter?: string;
   telegram?: string;
+  tokenomics?: TokenomicsCommitments;
 };
 
 export async function recordLaunch(payload: LaunchPayload) {
   const record = { ...payload, createdAt: new Date().toISOString() };
 
-  // local (this browser)
   try {
     const raw = localStorage.getItem('vexlorepad_launches');
     const list = raw ? JSON.parse(raw) : [];
@@ -21,7 +31,6 @@ export async function recordLaunch(payload: LaunchPayload) {
     }
   } catch {}
 
-  // server (best effort)
   try {
     await fetch('/api/launches', {
       method: 'POST',

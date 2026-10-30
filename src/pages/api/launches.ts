@@ -1,5 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+export type TokenomicsCommitments = {
+  pairWithVexlorebot?: boolean;
+  scannerGatedFees?: boolean;
+  graduationRitual?: boolean;
+  loreLockedSupply?: boolean;
+  volumeToLore?: boolean;
+  earlyExitPenalty?: boolean;
+  earlyExitPercent?: number;
+};
+
 export type LaunchRecord = {
   mint: string;
   name: string;
@@ -9,6 +19,7 @@ export type LaunchRecord = {
   twitter?: string;
   telegram?: string;
   createdAt: string;
+  tokenomics?: TokenomicsCommitments;
 };
 
 const RAW_URL =
@@ -31,7 +42,6 @@ async function writeLaunches(launches: LaunchRecord[]) {
   const token = process.env.GITHUB_TOKEN;
   if (!token) return false;
 
-  // get current sha
   const meta = await fetch(API_URL, {
     headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' },
   });
@@ -77,6 +87,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       twitter: body.twitter,
       telegram: body.telegram,
       createdAt: new Date().toISOString(),
+      tokenomics: body.tokenomics,
     };
 
     const launches = await readLaunches();
